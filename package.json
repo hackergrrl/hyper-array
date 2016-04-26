@@ -1,0 +1,26 @@
+{
+  "name": "hyper-array",
+  "version": "0.0.0",
+  "description": "array data structure backed by a hyperlog",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape tests/*"
+  },
+  "keywords": [
+    "hyper",
+    "array",
+    "hyperlog",
+    "crdt"
+  ],
+  "author": "Stephen Whitmore <stephen.whitmore@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "bisecting-between": "0.0.3",
+    "hyperlog": "^4.10.0",
+    "hyperswarm": "^1.1.0",
+    "webrtc-swarm": "^2.4.0"
+  },
+  "devDependencies": {
+    "tape": "^4.5.1"
+  }
+}
