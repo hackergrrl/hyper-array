@@ -15,7 +15,7 @@
   "author": "Stephen Whitmore <stephen.whitmore@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "bisecting-between": "0.0.3",
+    "bisecting-between": "0.0.5",
     "hyperlog": "^4.10.0",
     "hyperswarm": "^1.1.0",
     "webrtc-swarm": "^2.4.0"
