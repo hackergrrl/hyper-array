@@ -2,26 +2,12 @@ var async = require('async')
 var test = require('tape')
 var hyperarray = require('../index')
 var level = require('levelup')
-var memdown = require('memdown')
+var memdb = require('memdb')
 var SortedArray = require('sorted-array')
 var between = require('bisecting-between')()
 
-test('sorted entries', function (t) {
-  var index = new SortedArray([], between.numbers.compare)
-
-  index.insert('0')
-  index.insert('-1.0')
-  index.insert('1')
-  index.insert('-1')
-  index.insert('-1.01')
-
-  t.deepEquals(index.array, ['-1', '-1.0', '-1.01', '0', '1'])
-  t.end()
-})
-
 test('insert + get', function (t) {
-  var db = level('test', { db: memdown })
-  var array = hyperarray(db)
+  var array = hyperarray(memdb())
 
   async.series([
     function (cb) {
