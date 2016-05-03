@@ -1,37 +1,77 @@
+var async = require('async')
 var test = require('tape')
 var hyperarray = require('../index')
-var hyperlog = require('hyperlog')
 var level = require('levelup')
 var memdown = require('memdown')
+var SortedArray = require('sorted-array')
+var between = require('bisecting-between')()
+
+test('sorted entries', function (t) {
+  var index = new SortedArray([], between.numbers.compare)
+
+  index.insert('0')
+  index.insert('-1.0')
+  index.insert('1')
+  index.insert('-1')
+  index.insert('-1.01')
+
+  t.deepEquals(index.array, ['-1', '-1.0', '-1.01', '0', '1'])
+  t.end()
+})
 
 test('insert + get', function (t) {
-  t.plan(12)
-
   var db = level('test', { db: memdown })
-  var log = hyperlog(db)
-  var array = hyperarray(log)
+  var array = hyperarray(db)
 
-  array.insert('hello', function (err, entry) {
-    t.equals(err, null)
-    t.equals(entry.data, 'hello')
-    t.equals(entry.id, '1')
+  async.series([
+    function (cb) {
+      array.insert('hello', function (err, entry) {
+        t.equals(err, null)
+        t.equals(entry.data, 'hello')
+        t.equals(entry.id, '1')
+        cb()
+      })
+    },
 
-    array.insert('world', entry.id, null, function (err, entry) {
-      t.equals(err, null)
-      t.equals(entry.data, 'world')
-      t.equals(entry.id, '2')
+    function (cb) {
+      array.insert('world', '1', null, function (err, entry) {
+        t.equals(err, null)
+        t.equals(entry.data, 'world')
+        t.equals(entry.id, '2')
+        cb()
+      })
+    },
 
-      array.insert('why', null, entry.id, function (err, entry) {
+    function (cb) {
+      array.insert('why', null, '2', function (err, entry) {
         t.equals(err, null)
         t.equals(entry.data, 'why')
         t.equals(entry.id, '-1')
-
-        array.insert('there', '-1', '1', function (err, entry) {
-          t.equals(err, null)
-          t.equals(entry.data, 'there')
-          t.equals(entry.id, '-1.0')
-        })
+        cb()
       })
-    })
-  })
+    },
+
+    function (cb) {
+      array.insert('there', '-1', '1', function (err, entry) {
+        t.equals(err, null)
+        t.equals(entry.data, 'there')
+        t.equals(entry.id, '-1.0')
+        cb()
+      })
+    },
+
+    function (cb) {
+      var expected = [
+        { data: 'why', id: '-1' },
+        { data: 'hello', id: '1' },
+        { data: 'world', id: '2' }
+      ]
+      t.deepEquals(array.index.array, expected)
+      cb()
+    },
+
+    function (err, results) {
+      t.end()
+    }
+  ])
 })
