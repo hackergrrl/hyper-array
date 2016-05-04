@@ -1,6 +1,7 @@
 var between = require('bisecting-between')()
 var hyperlog = require('hyperlog')
 var SortedArray = require('sorted-array')
+var through = require('through2')
 
 function Hyperarray (db) {
   if (!(this instanceof Hyperarray)) return new Hyperarray(db)
@@ -48,6 +49,14 @@ Hyperarray.prototype.get = function (at, cb) {
   process.nextTick(function () {
     cb(null, self.entries[at])
   })
+}
+
+Hyperarray.prototype.createReadStream = function (opts) {
+  return this.log.createReadStream(opts)
+    .pipe(through.obj(function (chunk, enc, cb) {
+      this.push(JSON.parse(chunk.value))
+      cb()
+    }))
 }
 
 module.exports = Hyperarray

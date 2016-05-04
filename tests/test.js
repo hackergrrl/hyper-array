@@ -5,6 +5,7 @@ var level = require('levelup')
 var memdb = require('memdb')
 var SortedArray = require('sorted-array')
 var between = require('bisecting-between')()
+var through = require('through')
 
 test('insert', function (t) {
   var array = hyperarray(memdb())
@@ -105,12 +106,18 @@ test('get', function (t) {
 })
 
 test('many entries', function (t) {
+  t.plan(5)
+
   var array = hyperarray(memdb())
 
   insert(0, 25)
 
   function insert (times, max) {
-    if (times >= max) return done()
+    if (times >= max) {
+      t.ok(true)
+      return check22()
+    }
+
     var before = (!times ? null : ''+times)
     array.insert('entry #' + (times+1), before, null, function (err, entry) {
       if (err) {
@@ -121,13 +128,23 @@ test('many entries', function (t) {
     })
   }
 
-  function done () {
+  function check22 () {
     array.get('22', function (err, entry) {
       t.equals(err, null)
       t.equals(entry.data, 'entry #22')
       t.equals(entry.id, '22')
 
-      t.end()
+      checkReadStream()
     })
+  }
+
+  function checkReadStream () {
+    var num = 1
+    array.createReadStream().pipe(through(function (chunk, enc, cb) {
+      num++
+      if (num === 25) {
+        t.ok(true)
+      }
+    }))
   }
 })
