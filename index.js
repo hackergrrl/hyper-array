@@ -5,19 +5,19 @@ var SortedArray = require('sorted-array')
 function Hyperarray (db) {
   if (!(this instanceof Hyperarray)) return new Hyperarray(db)
 
-  this.index = new SortedArray([], function (a, b) {
-    return between.numbers.compare(a.id, b.id)
-  })
+  this.index = new SortedArray([], between.numbers.compare)
 
   // map of id to entry
-  // this.
+  this.entries = {}
 
   this.log = hyperlog(db)
 
+  // maintain in-memory index
   var self = this
   this.log.on('add', function (node) {
     var entry = JSON.parse(node.value)
-    self.index.insert(entry)
+    self.index.insert(entry.id)
+    self.entries[entry.id] = entry
   })
 }
 
@@ -44,7 +44,10 @@ Hyperarray.prototype.insert = function (elem, before, after, cb) {
 }
 
 Hyperarray.prototype.get = function (at, cb) {
-  // log.get(
+  var self = this
+  process.nextTick(function () {
+    cb(null, self.entries[at])
+  })
 }
 
 module.exports = Hyperarray
