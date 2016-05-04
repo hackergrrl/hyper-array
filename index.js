@@ -1,5 +1,4 @@
 var between = require('bisecting-between')()
-var indexer = require('hyperlog-index')
 var hyperlog = require('hyperlog')
 var SortedArray = require('sorted-array')
 
@@ -15,28 +14,11 @@ function Hyperarray (db) {
 
   this.log = hyperlog(db)
 
+  var self = this
   this.log.on('add', function (node) {
     var entry = JSON.parse(node.value)
     self.index.insert(entry)
   })
-
-  var self = this
-  this.dex = indexer({
-    log: this.log,
-    db: db,
-    map: function (row, next) {
-      var entry = JSON.parse(row.value)
-      // console.log('row', row)
-      // console.log('entry', entry)
-      // self.index.insert(entry)
-      console.log('index updated', entry.id)
-      // console.log('array', self.index.array)
-      next()
-    }
-  })
-
-  this.dex.ready(function () { console.log('r') })
-  // this.dex.on('_ready', function () { console.log('r') })
 }
 
 Hyperarray.prototype.insert = function (elem, before, after, cb) {
@@ -55,17 +37,9 @@ Hyperarray.prototype.insert = function (elem, before, after, cb) {
   }
 
   var self = this
-  self.dex.once('_ready', function () {
-    console.log('rr')
-    if (cb) cb(null, entry)
-  })
   this.log.append(JSON.stringify(entry), function (err, node) {
     if (err) return cb(err)
-
-    // self.dex.once('_ready', function () {
-    //   console.log('rr')
-    //   if (cb) cb(null, entry)
-    // })
+    cb(null, entry)
   })
 }
 

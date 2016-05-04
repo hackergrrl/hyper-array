@@ -17,7 +17,6 @@
   "dependencies": {
     "bisecting-between": "0.0.7",
     "hyperlog": "^4.10.0",
-    "hyperlog-index": "^5.0.2",
     "sorted-array": "^2.0.1"
   },
   "devDependencies": {
