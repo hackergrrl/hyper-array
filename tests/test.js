@@ -38,9 +38,9 @@ test('insert + get', function (t) {
     },
 
     function (cb) {
-      array.insert('there', '-1', '1', function (err, entry) {
+      array.insert('there, ', '-1', '1', function (err, entry) {
         t.equals(err, null)
-        t.equals(entry.data, 'there')
+        t.equals(entry.data, 'there, ')
         t.equals(entry.id, '-1.0')
         cb()
       })
@@ -49,6 +49,7 @@ test('insert + get', function (t) {
     function (cb) {
       var expected = [
         { data: 'why', id: '-1' },
+        { data: 'there, ', id: '-1.0' },
         { data: 'hello', id: '1' },
         { data: 'world', id: '2' }
       ]
