@@ -33,7 +33,7 @@ Hyperarray.prototype.insert = function (elem, before, after, cb) {
   }
 
   var entry = {
-    data: elem,
+    value: elem,
     id: between(before || between.lo, after || between.hi)
   }
 
